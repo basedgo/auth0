@@ -18,8 +18,11 @@ public class User {
     @Column(name = "auth0_id", unique = true)
     private String auth0Id;
 
-    @Column(nullable = false, unique = true)
+    @Column( unique = true)
     private String username;
+
+    @Column(nullable = false, unique = true)
+    private String email;
 
     @Column(name = "hashed_password")
     private String hashedPassword;
@@ -48,6 +51,14 @@ public class User {
         this.username = username;
     }
 
+    public String getEmail() {
+        return email;
+    }
+
+    public void setEmail(String email) {
+        this.email = email;
+    }
+    
     public String getHashedPassword() {
         return hashedPassword;
     }

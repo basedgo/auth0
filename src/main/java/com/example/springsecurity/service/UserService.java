@@ -8,14 +8,16 @@ import com.example.springsecurity.mapper.UserMapper;
 import com.example.springsecurity.repository.UserRepository;
 import com.example.springsecurity.security.CustomUserDetails;
 import com.example.springsecurity.security.JwtService;
-
 import org.springframework.http.HttpStatus;
+import org.springframework.security.oauth2.jwt.Jwt;
 import org.springframework.security.authentication.AuthenticationManager;
 import org.springframework.security.authentication.UsernamePasswordAuthenticationToken;
 import org.springframework.security.core.Authentication;
+import org.springframework.security.core.annotation.AuthenticationPrincipal;
 import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.stereotype.Service;
 import org.springframework.web.server.ResponseStatusException;
+
 @Service
 public class UserService {
 
@@ -51,5 +53,17 @@ public class UserService {
         CustomUserDetails userDetails = (CustomUserDetails) authentication.getPrincipal();
         String token = jwtService.generateToken(userDetails.getId());
         return new AuthResponse(token);
+    }
+
+    public User findOrAddUser(@AuthenticationPrincipal Jwt jwt) {
+        String auth0Id = jwt.getSubject();
+
+        return userRepository.findByAuth0Id(auth0Id)
+            .orElseGet(() -> {
+                User user = new User();
+                user.setAuth0Id(auth0Id);
+                user.setEmail(jwt.getClaimAsString("https://spring-security-api/email"));
+                return userRepository.save(user);
+        });
     }
 }
